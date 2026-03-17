@@ -5,6 +5,17 @@ from PIL import Image
 
 def image_to_base64(image_path):
     img = Image.open(image_path)
+
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGBA")  # 一旦RGBAにする
+        # 白い背景画像を作成
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        # 透過部分に白背景を合成
+        background.paste(img, mask=img.split()[3]) 
+        img = background
+    else:
+        img = img.convert("RGB")
+    
     img.thumbnail((1000, 1000))
     buffered = BytesIO()
     img.save(buffered, format="JPEG")
